@@ -211,6 +211,25 @@ def crash_text():
     return "\n".join(found[:60])
 
 
+def screen_texts():
+    """What is visible right now, for failure reports: window in focus + visible texts and ids."""
+    root = dump()
+    bits = []
+    for n in nodes(root):
+        t = (n.get("text") or "").strip().replace("\n", " / ")
+        rid = (n.get("resource-id") or "").split("/")[-1]
+        if t or rid.startswith(("bt", "et", "tv", "button")):
+            bits.append(f"{rid}={t[:60]!r}" if rid else repr(t[:60]))
+    m = re.search(r"mCurrentFocus=Window\{[^ ]+ [^ ]+ ([^}]+)\}", focus())
+    return f"[focus {m.group(1) if m else '?'}] " + ", ".join(bits[:30])
+
+
+def annotate(level, title, msg):
+    """GitHub annotation: readable on the run page and through the API without downloading logs."""
+    msg = msg.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
+    print(f"::{level} title={title}::{msg}", flush=True)
+
+
 def tracking_service_running():
     return "TrackingService" in sh(f"dumpsys activity services {PKG}")
 
@@ -229,6 +248,8 @@ def step(name, fn, required=True):
     crashes = crash_text()
     if crashes:
         status, detail = "FAIL", (detail + " | APP CRASH:\n" + crashes[-1500:]).strip(" |")
+    if status != "PASS":
+        detail += " | ON SCREEN: " + screen_texts()
     shot = screenshot(name)
     RESULTS.append((name, status, detail, shot))
     print(f"  {status} {detail}", flush=True)
@@ -529,6 +550,12 @@ def write_report():
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
             f.write(text)
     print("\n" + text)
+    annotate("notice", "QA summary", text)
+    for name, status, detail, _ in RESULTS:
+        if status == "FAIL":
+            annotate("error", f"QA failed: {name}", detail[:3000])
+        elif status == "WARN":
+            annotate("warning", f"QA warning: {name}", detail[:1500])
     return fails
 
 
