@@ -200,6 +200,19 @@ def focus():
     return out
 
 
+def on_home():
+    return "MainActivity" in focus()
+
+
+def back_to_home(what):
+    sh("input keyevent 4")
+    for _ in range(10):
+        time.sleep(0.8)
+        if on_home():
+            return
+    raise AssertionError(f"Back from {what} did not return to home")
+
+
 def app_alive():
     return sh(f"pidof {PKG}").strip() != ""
 
@@ -387,8 +400,7 @@ def doctor_visit():
     for _ in range(30):
         adb("emu", "geo", "fix", str(LNG), str(LAT))
         root = dump()
-        b = find(root, rid="btnSaveVisit")
-        if b is not None and b.get("enabled") == "true":
+        if text_of(root, "tvGps").startswith("📍"):     # the app shows the pin once it has a fix
             got_fix = True
             break
         r = find(root, rid="btnRetryGps")
@@ -403,7 +415,10 @@ def doctor_visit():
     type_into("etArea", "Hazratganj")
     type_into("etProducts", "Motodol Mouthwash")
     type_into("etRx", "5")
-    tap_scrolling(rid="btnSaveVisit", what="Check in and save report")
+    _, b = find_scrolling(rid="btnSaveVisit")
+    if b is None or b.get("enabled") != "true":
+        raise AssertionError("save button not enabled although GPS fix is shown")
+    tap(b)
     _, n = wait_for(rid="tvName", timeout=10)
     if n is None:
         raise AssertionError("did not return to home after saving the call")
@@ -443,10 +458,7 @@ def tour_plan():
             raise AssertionError("chosen area not shown on the day")
         detail = "area picked and saved for a day"
     rotate_check("tvTourStatus")
-    sh("input keyevent 4")
-    _, home = wait_for(rid="tvName", timeout=8)
-    if home is None:
-        raise AssertionError("Back did not return to home")
+    back_to_home("tour plan")
     return detail + "; survives rotation"
 
 
