@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp">
+
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/Label" android:layout_marginTop="0dp" android:text="Your location" />
+            <TextView android:id="@+id/tvGps" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" android:textSize="15sp" android:textColor="@color/ink" />
+            <TextView android:id="@+id/tvPin" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" android:textSize="14sp" android:textColor="@color/brand" android:textStyle="bold" />
+            <Button android:id="@+id/btnRetryGps" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" android:text="Retry GPS" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/Label" android:layout_marginTop="0dp" android:text="Doctor" />
+            <AutoCompleteTextView android:id="@+id/etDoctor" style="@style/Field" android:hint="Dr. name"
+                android:inputType="textPersonName|textCapWords" android:completionThreshold="1" />
+            <TextView style="@style/Label" android:text="Speciality" />
+            <EditText android:id="@+id/etSpeciality" style="@style/Field" android:hint="e.g. Radiation Oncology" android:inputType="textCapWords" />
+            <TextView style="@style/Label" android:text="Area" />
+            <EditText android:id="@+id/etArea" style="@style/Field" android:hint="e.g. Hazratganj" android:inputType="textCapWords" />
+            <TextView style="@style/Label" android:text="Products detailed" />
+            <EditText android:id="@+id/etProducts" style="@style/Field" android:hint="e.g. Motodol Mouthwash" android:inputType="textCapSentences" />
+            <TextView style="@style/Label" android:text="Samples given" />
+            <EditText android:id="@+id/etSamples" style="@style/Field" android:hint="e.g. Motodol x2" android:inputType="text" />
+            <TextView style="@style/Label" android:text="Rx commitment per week" />
+            <EditText android:id="@+id/etRx" style="@style/Field" android:hint="0" android:inputType="number" />
+            <TextView style="@style/Label" android:text="Doctor feedback" />
+            <EditText android:id="@+id/etFeedback" style="@style/Field" android:hint="What the doctor said"
+                android:inputType="textMultiLine|textCapSentences" android:minLines="2" />
+            <Button android:id="@+id/btnSaveVisit" style="@style/BigButton" android:text="Check in and save report" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

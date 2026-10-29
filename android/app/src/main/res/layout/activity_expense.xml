@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp">
+
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/Label" android:layout_marginTop="0dp" android:text="New claim" />
+            <TextView android:id="@+id/tvNoDays" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" android:textSize="14sp" android:textColor="@color/muted"
+                android:text="No finished work day to claim. End a work day first; it then appears here." android:visibility="gone" />
+
+            <LinearLayout android:id="@+id/claimForm" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView style="@style/Label" android:text="Work day" />
+                <Spinner android:id="@+id/spDay" android:layout_width="match_parent" android:layout_height="wrap_content" />
+                <TextView android:id="@+id/tvKm" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:textSize="14sp" android:textColor="@color/ink" />
+
+                <TextView style="@style/Label" android:text="Daily allowance (DA)" />
+                <RadioGroup android:id="@+id/rgDa" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/rbHq" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" />
+                    <RadioButton android:id="@+id/rbExHq" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <RadioButton android:id="@+id/rbOut" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                </RadioGroup>
+
+                <TextView style="@style/Label" android:text="Other expenses (₹)" />
+                <EditText android:id="@+id/etOther" style="@style/Field" android:hint="0" android:inputType="numberDecimal" />
+                <EditText android:id="@+id/etOtherNote" style="@style/Field" android:hint="What for? e.g. parking, courier"
+                    android:inputType="textCapSentences" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="6dp">
+                    <Button android:id="@+id/btnBill" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Attach bill photo" />
+                    <TextView android:id="@+id/tvBill" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp" android:textSize="13sp" android:textColor="@color/muted" />
+                </LinearLayout>
+                <TextView android:id="@+id/tvTotal" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:textSize="15sp" android:textStyle="bold" android:textColor="@color/brand" />
+                <Button android:id="@+id/btnSubmitClaim" style="@style/BigButton" android:text="Submit claim" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/Label" android:layout_marginTop="0dp" android:text="Your claims" />
+            <TextView android:id="@+id/tvMonthTotal" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" android:textSize="14sp" android:textColor="@color/ink" />
+            <LinearLayout android:id="@+id/claimsContainer" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

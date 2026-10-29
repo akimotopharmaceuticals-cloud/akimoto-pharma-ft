@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Akimoto Pharma FT</string>
+    <string name="setup_title">Setup</string>
+    <string name="visit_title">Doctor check-in</string>
+    <string name="tour_title">Tour plan</string>
+    <string name="expense_title">Expense claims</string>
+    <string name="consent_text">Akimoto Pharmaceuticals uses the Akimoto Pharma FT app to record your work activity.\n\n• What is recorded: a selfie and your location when you start the day, your location every few minutes, the time and place of each doctor call, your call reports, tour plans, expense claims and bill photos, and phone battery level.\n• When: only between Start day and End day. A notification is shown the whole time. Nothing is recorded on leave days or after you end the day. If you forget to end the day, it ends automatically in the evening.\n• Why: to verify doctor visits, calculate travel allowance from distance, and support your manager\'s planning.\n• Who sees it: you, your reporting managers and authorised head-office staff.\n• How long: detailed location points are kept for 90 days; daily summaries are kept as company records.\n• Your rights: you can ask HR to see or correct your data and can withdraw consent by informing HR in writing.</string>
+</resources>

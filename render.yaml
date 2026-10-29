@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: fieldtrack
+    runtime: node
+    rootDir: server
+    buildCommand: "true"
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: API_KEY
+        generateValue: true
+      - key: DA_HQ
+        value: "250"
+      - key: DA_EXHQ
+        value: "400"
+      - key: DA_OUT
+        value: "800"
+      - key: TA_PER_KM
+        value: "3.5"
+      - key: DAY_END_HOUR
+        value: "21"
+      - key: DATA_FILE
+        value: /var/data/fieldtrack.json
+    disk:
+      name: fieldtrack-data
+      mountPath: /var/data
+      sizeGB: 1

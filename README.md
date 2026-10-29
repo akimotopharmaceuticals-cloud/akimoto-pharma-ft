@@ -1,1 +1,104 @@
-# akimoto-pharma-ft
+# Akimoto Pharma FT · v1.0.0
+
+Field-force tracking for Akimoto Pharmaceuticals' medical representatives (MRs). The app carries the Akimoto leaf logo and appears on phones as **Akimoto Pharma FT**.
+
+- **`android/`** – the MR app (native Android, Kotlin). Records real GPS while the work day is open, verifies doctor check-ins against the clinic location, takes the call report (DCR), detects fake-GPS apps, works offline and syncs to the server. MRs also send their **monthly tour plan** and **daily expense claims** (TA from GPS km + DA + other costs with bill photo) for approval. The day can be shared as a CSV on WhatsApp.
+- **`server/`** – a small server plus the manager dashboard: live map, each MR's route, calls, km travelled and alerts, and an **Approvals** tab to approve or return tour plans and claims, view bill photos and download the monthly expense sheet for payroll. No extra packages needed (Node.js 18+).
+- **`.github/workflows/build-apk.yml`** – makes GitHub build the signed APK for you, free.
+
+**New in v1.0.0**
+
+- Akimoto leaf logo as the app icon (including Android 13+ themed icons) and in the notification bar; gold-and-black design.
+- **Start-of-day selfie.** Starting the day opens the camera. Skipping it is allowed, but the manager sees "Day started without a selfie". The selfie shows next to the MR's day on the dashboard.
+- **Forgotten days close automatically** at 9 pm (changeable), so nobody is tracked overnight. The manager sees "closed automatically".
+- **Location-off alert.** If the MR switches off location during an open day, the phone shows a warning that cannot be swiped away until it is turned on again.
+- **Restart reminder.** After a phone restart or an app update, the MR gets a notification to reopen the app so tracking continues.
+- **Today's plan** from the approved tour plan is shown on the home screen.
+- **Permanent company signing key.** Every future version installs over the old one and keeps the MR's data.
+
+---
+
+## Step 1 · Get the APK (about 10 minutes, free)
+
+1. Create a free account at **github.com** and sign in.
+2. Click **+** (top right) → **New repository**. Name it `akimoto-pharma-ft`, choose **Private** (important: the repository holds the company's app-signing key), tick **Add a README file**, click **Create repository**.
+3. On the repository page click **Add file → Upload files**. Unzip `AkimotoPharmaFT.zip` on your computer, open the `FieldTrack` folder, select **everything inside it** (including the `.github` folder) and drag it into the page. Click **Commit changes**.
+   - On a Mac, press **Cmd + Shift + .** in Finder to see the hidden `.github` folder. On Windows, turn on **View → Hidden items**.
+   - If the `.github` folder did not upload: click **Add file → Create new file**, type the name `.github/workflows/build-apk.yml`, paste the contents of that file from the zip, and click **Commit changes**.
+4. Open the **Actions** tab. A run called **Build and test Akimoto Pharma FT** starts by itself (if Actions asks for permission, click **I understand… enable them**). The APK is ready after about 6–8 minutes; the emulator test finishes about 10–15 minutes later.
+5. When it shows a green tick, click the run, scroll to **Artifacts** and download **AkimotoPharmaFT-v1.0.0**. Unzip it: inside is **`AkimotoPharmaFT-v1.0.0.apk`**.
+6. Send the APK to an Android phone (WhatsApp, email or USB), open it and allow **Install unknown apps** when asked.
+
+**Already installed an earlier test build?** Uninstall it once before installing v1.0.0, because the earlier builds were signed with a temporary key. From now on, new versions install straight over the old one.
+
+**Updating later:** already uploaded once? Open the repository, click into the folder that changed and use **Add file → Upload files** to replace the changed files. GitHub builds a new APK automatically.
+
+If the run shows a red cross, open it, copy the error lines and send them to Claude to fix.
+
+### Automatic testing on every build
+
+Every time files are uploaded, GitHub now runs three checks before you install anything:
+
+1. **Unit tests**: the distance (km) calculation and the 9 pm auto-close rule are checked against known answers.
+2. **Build and lint**: the app is compiled and signed, and Android's own code checker (lint) writes a report.
+3. **Emulator QA on Android 14**: the APK is installed on a real Android emulator, which goes through the app like an MR would: setup and consent, start day (camera opens, selfie skipped), doctor check-in with GPS, location switched off (warning must appear), tour plan, expenses, settings, screen rotation, end day, expense claim, CSV share, and restart (data must stay).
+
+The run shows a green tick only if all of this passes **and the app never crashed or froze**. Open the run to see a table of every step. Download **qa-screenshots-and-logs** for a screenshot of each screen plus the full Android log.
+
+If anything shows a red cross, copy the failing step from the table (or the red error lines) and send it to Claude to fix.
+
+## Step 2 · Put the manager dashboard online
+
+The app works without a server (each MR can share the day as a CSV), but to see everyone live on a map you need the server.
+
+**Render.com (simplest, about US$7 a month for the plan with a saved disk)**
+
+1. Sign up at **render.com** with your GitHub account.
+2. Click **New → Blueprint**, pick your `akimoto-pharma-ft` repository, click **Apply**. Render reads `render.yaml` and creates the service with a disk so data is kept.
+3. When it is live, open the service → **Environment** and copy the value of **API_KEY**. This is your access key.
+4. Your dashboard address is shown at the top, like `https://fieldtrack-xxxx.onrender.com`. Open it and enter the access key.
+
+Any other host that runs Node.js works too (a VPS, Railway, your own office PC): run `API_KEY=choose-a-long-key node server/server.js` and open port 8080.
+
+## Step 3 · Set up each MR's phone
+
+1. Install the APK and open **Akimoto Pharma FT**.
+2. Enter the MR's name and employee code, the server address from Step 2 and the access key. Leave location interval at 5 minutes.
+3. The MR reads the consent notice and ticks **I agree**.
+4. Tap **Start day**, allow **Precise location** and notifications, take the selfie, and allow **no battery restrictions** when asked. On Xiaomi/Redmi phones also turn on **Autostart** for the app in phone settings.
+5. At each doctor: tap **Check in at doctor**, wait for the GPS fix, fill the report and save.
+6. Tap **End day** after the last call. Tracking stops. If the MR forgets, the day closes by itself at 9 pm.
+7. **Tour plan:** tap **Tour plan**, choose the month, tap each day to set the area (Sundays are pre-filled as off), then **Send for approval**. If the manager returns it, the note shows on the plan; change it and send again.
+8. **Expenses:** after ending a day, tap **Expenses**, pick the day, choose DA type (HQ / Ex-HQ / Outstation), add any other cost with a note and a bill photo, and **Submit claim**. Travel allowance is calculated from that day's GPS km. A returned claim can be removed and claimed again.
+
+## Approving plans and claims (manager)
+
+Open the dashboard → **Approvals** tab.
+
+- **Expense claims:** each claim shows DA, km × rate, other costs, the bill photo and the km the server itself measured from GPS. A warning appears if the claimed km is more than the GPS km, or if there is an other expense without a bill. Tap **Approve**, or write a note and tap **Return**.
+- **Tour plans:** shown as a month calendar. Approve, or return with a note.
+- **Monthly CSV for payroll:** downloads every claim for the month with totals per MR.
+- Decisions reach the MR's phone on its next sync (within about 10 minutes, or immediately when they tap **Sync now**).
+
+**Expense rates** are set on the server and sent to every phone automatically. Defaults: DA HQ ₹250, Ex-HQ ₹400, Outstation ₹800, TA ₹3.50 per km. To change them on Render, open the service → **Environment** and set `DA_HQ`, `DA_EXHQ`, `DA_OUT` and `TA_PER_KM`, then save. `DAY_END_HOUR` (default `21`, i.e. 9 pm) sets when forgotten days close; phones pick up changes on their next sync.
+
+## How it decides what is verified
+
+- The **first** visit to a doctor pins that clinic's location.
+- Later check-ins within **150 m** of the pin (with GPS accuracy of 50 m or better) are **verified**; farther ones are **flagged** on the dashboard.
+- Any record taken while a fake-GPS app is active is flagged.
+- Distance (km) counts only good GPS points, ignores jitter under 20 m and ignores impossible jumps over 150 km/h. Use it for the travel allowance.
+- The dashboard alerts when a phone sends no location for 30 minutes during an open day, or stays in one place for 90 minutes with no call reported.
+- It also flags a day started without a selfie, and a day the MR forgot to end.
+
+## Before rolling out to all MRs
+
+- Pilot with 5–10 MRs for two weeks and compare GPS km with their usual claims.
+- Have a lawyer/HR review the consent text in `android/app/src/main/res/values/strings.xml` and add the tracking clause to the HR policy (DPDP Act, 2023).
+- For more than about 100 MRs or long-term storage, move the server's data from the JSON file to a database (PostgreSQL), as described in the developer spec.
+- The APK is signed with the company key in `android/app/akimoto-ft.jks` (password in `android/app/signing.properties`). Keep a backup of both files: without them, future versions cannot install over the current one. Keep the GitHub repository private.
+- To publish on the Google Play Store later, the same key can be used to create a Play upload key.
+
+## What is not in this version yet
+
+Leave applications, a doctor master list from head office, sample stock and reports beyond the CSV exports are not in this app yet. Chemist orders are left out on purpose.

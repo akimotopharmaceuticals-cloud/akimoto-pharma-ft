@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp">
+
+        <LinearLayout style="@style/Card">
+            <ImageView android:layout_width="match_parent" android:layout_height="120dp"
+                android:layout_marginBottom="8dp" android:adjustViewBounds="true" android:scaleType="fitCenter"
+                android:src="@drawable/logo_full" android:contentDescription="Akimoto Pharmaceuticals" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Welcome to Akimoto Pharma FT" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/ink" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                android:text="Field tracking for medical representatives: work day, doctor calls, tour plans and expenses."
+                android:textSize="14sp" android:textColor="@color/muted" />
+            <TextView style="@style/Label" android:text="Your name" />
+            <EditText android:id="@+id/etName" style="@style/Field" android:inputType="textPersonName|textCapWords" />
+            <TextView style="@style/Label" android:text="Employee code" />
+            <EditText android:id="@+id/etCode" style="@style/Field" android:hint="e.g. LKO-014" android:inputType="textCapCharacters" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/Label" android:layout_marginTop="0dp" android:text="Server (from your manager)" />
+            <EditText android:id="@+id/etServer" style="@style/Field" android:hint="https://fieldtrack-xxxx.onrender.com" android:inputType="textUri" />
+            <TextView style="@style/Label" android:text="Access key" />
+            <EditText android:id="@+id/etKey" style="@style/Field" android:inputType="text" />
+            <TextView style="@style/Label" android:text="Location every (minutes)" />
+            <EditText android:id="@+id/etInterval" style="@style/Field" android:inputType="number" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp"
+                android:textSize="12sp" android:textColor="@color/muted"
+                android:text="Leave the server empty to keep data on this phone and share it with Export CSV." />
+        </LinearLayout>
+
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/Label" android:layout_marginTop="0dp" android:text="Location tracking consent" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp"
+                android:text="@string/consent_text" android:textSize="14sp" android:lineSpacingExtra="2dp" android:textColor="@color/ink" />
+            <CheckBox android:id="@+id/cbConsent" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="I have read this and I agree" />
+            <TextView android:id="@+id/tvConsentInfo" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textSize="12sp" android:textColor="@color/muted" />
+        </LinearLayout>
+
+        <Button android:id="@+id/btnSaveSetup" style="@style/BigButton" android:text="Save and continue" />
+        <TextView android:id="@+id/tvVersion" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:gravity="center" android:textSize="12sp" android:textColor="@color/muted" />
+    </LinearLayout>
+</ScrollView>

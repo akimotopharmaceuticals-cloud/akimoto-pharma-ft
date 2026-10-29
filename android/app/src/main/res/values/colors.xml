@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Akimoto brand: warm black + leaf gold -->
+    <color name="brand">#1E1B16</color>
+    <color name="brand_dark">#12100D</color>
+    <color name="icon_bg">#1E1B16</color>
+    <color name="accent">#D89E2E</color>
+    <color name="accent_text">#8F5F0A</color>
+    <color name="on_brand">#FFFFFF</color>
+    <color name="on_brand_muted">#D9CFBC</color>
+    <color name="bg">#F4F3EF</color>
+    <color name="card">#FFFFFF</color>
+    <color name="line">#E2DED5</color>
+    <color name="ink">#1A1814</color>
+    <color name="muted">#6B665D</color>
+    <color name="ok">#24804F</color>
+    <color name="warn">#A86B0C</color>
+    <color name="bad">#BF2F2F</color>
+    <color name="warn_bg">#FBEBCF</color>
+</resources>
