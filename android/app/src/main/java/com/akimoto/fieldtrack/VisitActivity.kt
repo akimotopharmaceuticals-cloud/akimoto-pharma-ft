@@ -3,6 +3,7 @@ package com.akimoto.fieldtrack
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
+import android.os.SystemClock
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.ArrayAdapter
@@ -70,27 +71,65 @@ class VisitActivity : AppCompatActivity() {
         }
         attempts++
         tvGps.text = "Getting your location… (try $attempts)"
-        LocationServices.getFusedLocationProviderClient(this)
-            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancel.token)
-            .addOnSuccessListener { loc ->
-                if (loc == null) {
-                    tvGps.text = "No GPS fix yet. Step outside or near a window and tap Retry."
-                    return@addOnSuccessListener
+        val client = LocationServices.getFusedLocationProviderClient(this)
+        try {
+            client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancel.token)
+                .addOnSuccessListener { loc -> if (loc != null) showFix(loc, "") else useRecentFix() }
+                .addOnFailureListener { useRecentFix() }
+        } catch (e: SecurityException) {
+            tvGps.text = "Location permission is off. Allow it in phone settings."
+        }
+    }
+
+    /**
+     * Indoors (inside a clinic) a fresh fix can fail even though the phone had a good one moments ago.
+     * Use the phone's last fix if it is at most 2 minutes old; otherwise retry automatically.
+     */
+    @SuppressLint("MissingPermission")
+    private fun useRecentFix() {
+        if (isFinishing || isDestroyed) return
+        try {
+            LocationServices.getFusedLocationProviderClient(this).lastLocation
+                .addOnSuccessListener { last ->
+                    val ageSec = if (last == null) Long.MAX_VALUE
+                    else (SystemClock.elapsedRealtimeNanos() - last.elapsedRealtimeNanos) / 1_000_000_000L
+                    when {
+                        last != null && ageSec <= RECENT_FIX_SEC -> showFix(last, "  (fix from ${ageSec}s ago)")
+                        location != null -> showFix(location!!, "")
+                        else -> noFixYet()
+                    }
                 }
-                val better = location == null || loc.accuracy < (location?.accuracy ?: Float.MAX_VALUE)
-                if (better) location = loc
-                val l = location ?: return@addOnSuccessListener
-                val mock = Geo.isMock(l)
-                tvGps.text = buildString {
-                    append("📍 %.5f, %.5f  ±%d m".format(l.latitude, l.longitude, l.accuracy.toInt()))
-                    if (mock) append("\n⚠ Fake-GPS app detected. This call will be flagged.")
-                    else if (l.accuracy > Geo.MAX_ACCURACY_M) append("\nWeak accuracy. Retrying for a better fix…")
-                }
-                btnSave.isEnabled = true
-                updatePin()
-                if (l.accuracy > Geo.MAX_ACCURACY_M && attempts < 3) fetchLocation()
-            }
-            .addOnFailureListener { tvGps.text = "Could not read GPS: ${it.message}. Tap Retry." }
+                .addOnFailureListener { noFixYet() }
+        } catch (e: SecurityException) {
+            noFixYet()
+        }
+    }
+
+    private fun noFixYet() {
+        if (isFinishing || isDestroyed) return
+        if (attempts < AUTO_RETRIES) {
+            tvGps.text = "Waiting for GPS… (try $attempts of $AUTO_RETRIES)"
+            tvGps.postDelayed({ if (!isFinishing && location == null) fetchLocation() }, 4_000)
+        } else {
+            tvGps.text = "No GPS fix yet. Step outside or near a window and tap Retry GPS."
+        }
+    }
+
+    private fun showFix(loc: Location, note: String) {
+        if (isFinishing || isDestroyed) return
+        val better = location == null || loc.accuracy < (location?.accuracy ?: Float.MAX_VALUE)
+        if (better) location = loc
+        val l = location ?: return
+        val mock = Geo.isMock(l)
+        tvGps.text = buildString {
+            append("📍 %.5f, %.5f  ±%d m".format(l.latitude, l.longitude, l.accuracy.toInt()))
+            if (note.isNotEmpty() && l === loc) append(note)
+            if (mock) append("\n⚠ Fake-GPS app detected. This call will be flagged.")
+            else if (l.accuracy > Geo.MAX_ACCURACY_M) append("\nWeak accuracy. Retrying for a better fix…")
+        }
+        btnSave.isEnabled = true
+        updatePin()
+        if (l.accuracy > Geo.MAX_ACCURACY_M && attempts < 3) fetchLocation()
     }
 
     private fun updatePin() {
@@ -149,5 +188,10 @@ class VisitActivity : AppCompatActivity() {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
         Sync.maybeSync(this, force = true)
         finish()
+    }
+
+    companion object {
+        private const val RECENT_FIX_SEC = 120L
+        private const val AUTO_RETRIES = 4
     }
 }

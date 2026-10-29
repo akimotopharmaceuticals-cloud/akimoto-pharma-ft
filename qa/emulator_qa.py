@@ -171,6 +171,18 @@ def tap_scrolling(rid=None, text=None, contains=None, what=""):
     return n
 
 
+def open_screen(button_rid, expect_rid, what):
+    """Tap a home-screen button and wait for the new screen; tap once more if the first tap was lost
+    (e.g. it landed while the page was still scrolling or a notification banner was showing)."""
+    for attempt in range(2):
+        time.sleep(1)                                    # let any scroll fling settle
+        tap_scrolling(rid=button_rid, what=what)
+        _, n = wait_for(rid=expect_rid, timeout=12)
+        if n is not None:
+            return n
+    raise AssertionError(f"{what} screen did not open")
+
+
 def type_into(rid, value):
     _, n = find_scrolling(rid=rid)
     if n is None:
@@ -370,12 +382,9 @@ def start_day():
 
 
 def doctor_visit():
-    tap_scrolling(rid="btnVisit", what="Check in at doctor")
-    _, n = wait_for(rid="etDoctor", timeout=10)
-    if n is None:
-        raise AssertionError("check-in screen did not open")
+    open_screen("btnVisit", "etDoctor", "Check-in")
     got_fix = False
-    for _ in range(20):
+    for _ in range(30):
         adb("emu", "geo", "fix", str(LNG), str(LAT))
         root = dump()
         b = find(root, rid="btnSaveVisit")
@@ -388,7 +397,7 @@ def doctor_visit():
         time.sleep(2)
     if not got_fix:
         sh("input keyevent 4")
-        raise Warn("emulator gave no GPS fix within 40 s; check-in screen opened but could not be saved")
+        raise Warn("emulator gave no GPS fix within 60 s; check-in screen opened but could not be saved")
     type_into("etDoctor", "Dr QA Sharma")
     type_into("etSpeciality", "Radiation Oncology")
     type_into("etArea", "Hazratganj")
@@ -420,10 +429,7 @@ def location_off_warning():
 
 
 def tour_plan():
-    tap_scrolling(rid="btnTour", what="Tour plan")
-    _, n = wait_for(rid="btnSubmitTour", timeout=10)
-    if n is None:
-        raise AssertionError("tour plan screen did not open")
+    open_screen("btnTour", "tvTourStatus", "Tour plan")
     _, day = find_scrolling(contains="tap to plan")
     detail = "screen opened"
     if day is not None:
@@ -436,7 +442,7 @@ def tour_plan():
         if saved is None:
             raise AssertionError("chosen area not shown on the day")
         detail = "area picked and saved for a day"
-    rotate_check("btnSubmitTour")
+    rotate_check("tvTourStatus")
     sh("input keyevent 4")
     _, home = wait_for(rid="tvName", timeout=8)
     if home is None:
@@ -445,22 +451,14 @@ def tour_plan():
 
 
 def expenses_while_open():
-    tap_scrolling(rid="btnExpenses", what="Expenses")
-    _, n = wait_for(rid="tvMonthTotal", timeout=10)
-    if n is None:
-        _, n = find_scrolling(rid="tvMonthTotal")
-    if n is None:
-        raise AssertionError("expenses screen did not open")
+    open_screen("btnExpenses", "tvNoDays", "Expenses")
     sh("input keyevent 4")
     wait_for(rid="tvName", timeout=8)
     return "expenses screen opened"
 
 
 def settings_screen():
-    tap_scrolling(rid="btnSettings", what="Settings")
-    root, n = wait_for(rid="etName", timeout=10)
-    if n is None:
-        raise AssertionError("settings screen did not open")
+    n = open_screen("btnSettings", "etName", "Settings")
     if "QA Tester" not in (n.get("text") or ""):
         raise AssertionError("settings did not keep the saved name")
     _, v = find_scrolling(rid="tvVersion")
@@ -487,7 +485,7 @@ def end_day():
 
 
 def claim_expense():
-    tap_scrolling(rid="btnExpenses", what="Expenses")
+    open_screen("btnExpenses", "spDay", "Expenses")
     _, b = find_scrolling(rid="btnSubmitClaim")
     if b is None:
         raise AssertionError("finished day not offered for a claim")
